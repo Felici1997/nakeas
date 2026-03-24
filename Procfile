@@ -1,1 +1,1 @@
-web: php -S 0.0.0.0:$PORT
+web: cd core && composer install && php -S 0.0.0.0:$PORT

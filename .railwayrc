@@ -1,0 +1,4 @@
+{
+  "buildCommand": "cd core && composer install --no-dev --optimize-autoloader --no-interaction",
+  "startCommand": "php -S 0.0.0.0:$PORT"
+}
