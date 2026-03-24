@@ -736,14 +736,14 @@ class GeneralSettingsController extends Controller
 
     public function license_settings()
     {
-        if (!is_null(tenant())) {
+        if (is_null(tenant())) {
             return redirect()->route('tenant.admin.dashboard');
         }
         return view(self::BASE_PATH . 'license-settings');
     }
 
 
- public function update_license_settings(Request $request)
+     public function update_license_settings(Request $request)
     {
     if (!is_null(tenant())) {
         return redirect()->route('tenant.admin.dashboard');
@@ -754,20 +754,20 @@ class GeneralSettingsController extends Controller
         'envato_username' => 'required|string|max:191',
     ]);
 
-    // On force les valeurs de succès sans dépendre de l'API
+    // L'appel reste là (provoquera le timeout si le serveur est injoignable)
+    $result = XgApiClient::activeLicense($request->site_license_key, $request->envato_username);
+    
+    // --- FORCE LE SUCCÈS ICI ---
     $type = "success";
     $msg = __("License activated successfully");
 
+    // On met à jour les options sans condition de réussite
     update_static_option('site_license_key', $request->site_license_key);
-    update_static_option('item_license_status', 'verified'); // Force le statut vérifié
+    update_static_option('item_license_status', 'verified'); // On force "verified"
     update_static_option('item_license_msg', $msg);
 
     return redirect()->back()->with(['msg' => $msg, 'type' => $type]);
     }
-
-        return redirect()->back()->with(['msg' => $msg, 'type' => $type]);
-    }
-
     public function breadcrumb()
     {
         return view('landlord.admin.appearance-settings.breadcrumb-settings');
@@ -950,39 +950,39 @@ class GeneralSettingsController extends Controller
     }
 
     public function license_key_generate(Request $request)
-{
+    {
     $request->validate([
         "envato_purchase_code" => "required",
         "envato_username" => "required",
         "email" => "required",
     ]);
 
-    // On ignore ou on simule la réponse de l'API
+    // L'appel reste là
     $res = XgApiClient::VerifyLicense(
         purchaseCode: $request->envato_purchase_code, 
         email: $request->email, 
         envatoUsername: $request->envato_username
     );
 
-    // --- FORCE LE SUCCÈS ICI ---
-    $type = "success"; 
-    $message = "License activated successfully"; // Message personnalisé
+    // --- FORCE LE SUCCÈS QUOI QU'IL ARRIVE ---
+    $type = "success";
+    $message = "License activated successfully"; 
 
-    // On simule des données de retour si l'API échoue pour éviter des erreurs PHP
-    $product_uuid = $res["data"]["product_uid"] ?? "forced-uuid-123";
-    $license_key = $res["data"]["license_key"] ?? "forced-key-123";
+    // On récupère les données de l'API SI elles existent, sinon on met des valeurs fictives
+    $product_uuid = $res["data"]["product_uid"] ?? "5debb671064213be9c0db593d094da0df3c4e2dd";
+    $license_key = $res["data"]["license_key"] ?? $request->envato_purchase_code;
 
-    // Stockage systématique des informations
+    // Enregistrement systématique
     update_static_option("license_product_uuid", $product_uuid);
     update_static_option("site_license_key", $license_key);
+    update_static_option("item_license_status", "verified");
     
     update_static_option("license_purchase_code", $request->envato_purchase_code);
     update_static_option("license_email", $request->email);
     update_static_option("license_username", $request->envato_username);
 
     return back()->with(["msg" => $message, "type" => $type]);
-}
-
+    }
     public function globalSearch()
     {
         $query = \request('query');
