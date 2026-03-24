@@ -5,4 +5,4 @@ nixPkgs = ['php82', 'php82Extensions.mbstring', 'php82Extensions.pdo', 'php82Ext
 cmds = ['composer install --working-dir=core --no-dev --optimize-autoloader --no-interaction']
 
 [start]
-cmd = 'php -S 0.0.0.0:$PORT'
+cmd = 'cd core && php -S 0.0.0.0:$PORT -t public'
