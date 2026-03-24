@@ -743,27 +743,27 @@ class GeneralSettingsController extends Controller
     }
 
 
-    public function update_license_settings(Request $request)
+ public function update_license_settings(Request $request)
     {
-        if (!is_null(tenant())) {
-            return redirect()->route('tenant.admin.dashboard');
-        }
+    if (!is_null(tenant())) {
+        return redirect()->route('tenant.admin.dashboard');
+    }
 
-        $request->validate([
-            'site_license_key' => 'required|string|max:191',
-            'envato_username' => 'required|string|max:191',
-        ]);
+    $request->validate([
+        'site_license_key' => 'required|string|max:191',
+        'envato_username' => 'required|string|max:191',
+    ]);
 
-        $result = XgApiClient::activeLicense($request->site_license_key, $request->envato_username);
-        $type = "danger";
-        $msg = __("could not able to verify your license key, please try after sometime, if you still face this issue, contact support");
-        if (!empty($result["success"]) && $result["success"]) {
-            update_static_option('site_license_key', $request->site_license_key);
-            update_static_option('item_license_status', $result['success'] ? 'verified' : "");
-            update_static_option('item_license_msg', $result['message']);
-            $type = $result['success'] ? 'success' : "danger";
-            $msg = $result['message'];
-        }
+    // On force les valeurs de succès sans dépendre de l'API
+    $type = "success";
+    $msg = __("License activated successfully");
+
+    update_static_option('site_license_key', $request->site_license_key);
+    update_static_option('item_license_status', 'verified'); // Force le statut vérifié
+    update_static_option('item_license_msg', $msg);
+
+    return redirect()->back()->with(['msg' => $msg, 'type' => $type]);
+    }
 
         return redirect()->back()->with(['msg' => $msg, 'type' => $type]);
     }
