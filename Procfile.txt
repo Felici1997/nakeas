@@ -1,4 +1,0 @@
-# Créer Procfile
-@"
-web: php -S 0.0.0.0:`$PORT -t public
-"@ | Out-File -FilePath Procfile -Encoding utf8
