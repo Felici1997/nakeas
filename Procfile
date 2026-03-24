@@ -1,1 +1,1 @@
-web: cd core && php ../composer.phar install --no-dev --optimize-autoloader --no-interaction && cd .. && php -S 0.0.0.0:$PORT
+web: cd core && php ../composer.phar install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs && cd .. && php -S 0.0.0.0:$PORT
